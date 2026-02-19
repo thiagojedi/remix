@@ -1,0 +1,44 @@
+{
+  "tasks": {
+    "dev": {
+      "dependencies": [
+        "dev:server",
+        "dev:browser"
+      ]
+    },
+    "dev:server": "NODE_ENV=development deno serve -P=dev-env --ignore-env --watch server.ts",
+    "dev:browser": "deno bundle ../frames/app/assets/*.tsx --outdir=public/assets --minify --code-splitting --platform=browser --sourcemap --watch",
+    "start": "deno serve -P=public-dir --ignore-env server.ts",
+    "typecheck": "deno check --unstable-tsgo"
+  },
+  "permissions": {
+    "public-dir": {
+      "read": ["public/"]
+    },
+    "dev-env": {
+      "env": ["NODE_ENV"],
+      "read": ["public/"]
+    }
+  },
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "deno.ns"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "remix/component"
+  },
+  "fmt": {
+    "semiColons": false
+  },
+  "lint": {
+    "rules": {
+      "exclude": [
+        "prefer-const",
+        "no-explicit-any",
+        "require-await"
+      ]
+    }
+  }
+}
