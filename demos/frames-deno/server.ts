@@ -1,10 +1,10 @@
 import { router } from "frames-demo/app/router.tsx"
 
-export default {
-  fetch: (request) => router.fetch(request),
-  onListen: (address) => {
-    if (address.transport === "tcp") {
-      console.log(`Frames demo is running on http://${address.hostname}:${address.port}`)
-    }
+let port = Deno.env.has("PORT") ? parseInt(Deno.env.get("PORT")!, 10) : 44100
+
+Deno.serve({
+  port,
+  onListen: () => {
+    console.log(`Frames demo is running on http://localhost:${port}`)
   },
-} satisfies Deno.ServeDefaultExport
+}, (req) => router.fetch(req))

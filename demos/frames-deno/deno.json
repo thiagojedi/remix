@@ -6,18 +6,24 @@
         "dev:browser"
       ]
     },
-    "dev:server": "NODE_ENV=development deno serve -P=dev-env --ignore-env --watch server.ts",
+    "dev:server": "NODE_ENV=development deno run --permission-set=dev-env --ignore-env --watch server.ts",
     "dev:browser": "deno bundle ../frames/app/assets/*.tsx --outdir=public/assets --minify --code-splitting --platform=browser --sourcemap --watch",
-    "start": "deno serve -P=public-dir --ignore-env server.ts",
+    "serve": "deno run --permission-set=public-with-net --ignore-env server.ts",
+    "serve:fetch": "deno serve --port 44100 --permission-set=public --ignore-env fetch.ts",
     "typecheck": "deno check --unstable-tsgo"
   },
   "permissions": {
-    "public-dir": {
+    "public": {
       "read": ["public/"]
+    },
+    "public-with-net": {
+      "read": ["public/"],
+      "net": true
     },
     "dev-env": {
       "env": ["NODE_ENV"],
-      "read": ["public/"]
+      "read": ["public/"],
+      "net": true
     }
   },
   "compilerOptions": {
