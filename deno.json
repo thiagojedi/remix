@@ -3,8 +3,5 @@
         "packages/*",
         "demos/*"
     ],
-    "nodeModulesDir": "auto",
-    "allowScripts": {
-        "allow": ["npm:better-sqlite3@12.6.2","npm:esbuild@0.25.12", "npm:esbuild@0.27.3"]
-    }
+    "nodeModulesDir": "auto"
 }

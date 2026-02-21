@@ -82,7 +82,7 @@ importers:
   demos/frames:
     dependencies:
       remix:
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/remix
     devDependencies:
       '@types/node':
