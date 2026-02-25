@@ -2,6 +2,7 @@
   "deno.enablePaths": [
     "./packages/multipart-parser/examples/deno", 
     "./demos/frames-deno", 
+    "./demos/sse-deno",
     "./demos/unpkg-deno"
   ],
   "nodejs-testing.extensions": [

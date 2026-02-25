@@ -5,7 +5,7 @@
   "dependencies": {
     "@remix-run/dom": "jam",
     "@remix-run/events": "jam",
-    "remix": "workspace:*"
+    "remix": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:",

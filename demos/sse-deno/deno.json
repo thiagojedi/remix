@@ -1,0 +1,31 @@
+{
+  "tasks": {
+        "dev": {
+      "description": "Use this for development. Setups server and browser in parallel.",
+      "dependencies": ["dev:server", "dev:browser"]
+    },
+        "dev:server": {
+      "description": "Run server code (no compilation) in watch mode",
+      "command": "NODE_ENV=development deno run -P --ignore-env --watch server.ts"
+    },
+    "dev:browser": {
+      "description": "Compiles assets to public folder",
+      "command": "deno bundle ../sse/app/assets/*.tsx --outdir=public/assets --minify --code-splitting --platform=browser --sourcemap --watch"
+    },
+    "start": {
+      "description": "Runs serve using Deno.server built-in api. Expects compiled assets (see dev:browser).",
+      "command": "deno run -P --ignore-env server.ts"
+    },
+    "start:fetch": {
+      "description": "Runs serve using Fetch api. Expects compiled assets (see dev:browser).",
+      "command": "deno serve --port 44100 -P --ignore-env fetch.ts"
+    }
+  },
+  "permissions": {
+    "default": {
+      "env": ["NODE_ENV", "PORT"],
+      "net": ["0.0.0.0"],
+      "read": ["public/"]
+    }
+  }
+}
