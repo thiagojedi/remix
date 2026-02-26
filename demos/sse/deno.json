@@ -28,7 +28,5 @@
       "read": ["public/"]
     }
   },
-  "unstable": [
-    "sloppy-imports"
-  ]
+  "unstable": ["sloppy-imports"]
 }

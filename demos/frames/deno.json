@@ -36,21 +36,9 @@
     }
   },
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "deno.ns"
-    ],
+    "lib": ["dom", "dom.iterable", "deno.ns"],
     "jsx": "react-jsx",
     "jsxImportSource": "remix/component"
   },
-  "lint": {
-    "rules": {
-      "exclude": [
-        "prefer-const",
-        "no-explicit-any",
-        "require-await"
-      ]
-    }
-  }
+  "unstable": ["sloppy-imports"]
 }
