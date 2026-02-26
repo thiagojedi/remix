@@ -8,6 +8,7 @@ import {
   type Deflate,
 } from 'node:zlib'
 import type { BrotliOptions, ZlibOptions } from 'node:zlib'
+import { Buffer } from 'node:buffer'
 
 import { AcceptEncoding, CacheControl, Vary } from '@remix-run/headers'
 

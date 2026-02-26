@@ -21,5 +21,10 @@
       "net": ["registry.npmjs.org", "0.0.0.0"]
     }
   },
-  "unstable": ["sloppy-imports"]
+  "unstable": ["sloppy-imports"],
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "deno.ns"],
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true
+  }
 }
