@@ -1,7 +1,0 @@
-{
-  "workspace": [
-    "packages/*",
-    "demos/*"
-  ],
-  "nodeModulesDir": "auto"
-}
