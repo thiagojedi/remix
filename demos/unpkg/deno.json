@@ -23,7 +23,9 @@
   },
   "unstable": ["sloppy-imports"],
   "compilerOptions": {
+    "strict": true,
     "lib": ["dom", "dom.iterable", "deno.ns"],
+    "moduleResolution": "Bundler",
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   }
