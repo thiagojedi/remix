@@ -13,12 +13,8 @@
       "command": "deno bundle ../frames/app/assets/*.tsx --outdir=public/assets --minify --code-splitting --platform=browser --sourcemap --watch"
     },
     "start": {
-      "description": "Runs serve using Deno.server built-in api. Expects compiled assets (see dev:browser).",
-      "command": "deno run --permission-set=public-with-net --ignore-env server.ts"
-    },
-    "start:fetch": {
       "description": "Runs serve using Fetch api. Expects compiled assets (see dev:browser).",
-      "command": "deno serve --port 44100 --permission-set=public --ignore-env fetch.ts"
+      "command": "deno serve --port 44100 --permission-set=public --ignore-env deno.entry.ts"
     },
     "typecheck": {
       "description": "Check types using typescript-go (unstable)",
@@ -47,9 +43,6 @@
     ],
     "jsx": "react-jsx",
     "jsxImportSource": "remix/component"
-  },
-  "fmt": {
-    "semiColons": false
   },
   "lint": {
     "rules": {

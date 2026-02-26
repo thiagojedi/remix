@@ -107,7 +107,7 @@ importers:
         specifier: jam
         version: 0.0.0-experimental-remix-jam.5
       remix:
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/remix
     devDependencies:
       '@types/node':
@@ -126,7 +126,7 @@ importers:
   demos/unpkg:
     dependencies:
       remix:
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/remix
       semver:
         specifier: ^7.6.3
