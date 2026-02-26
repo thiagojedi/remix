@@ -27,5 +27,8 @@
       "net": ["0.0.0.0"],
       "read": ["public/"]
     }
-  }
+  },
+  "unstable": [
+    "sloppy-imports"
+  ]
 }

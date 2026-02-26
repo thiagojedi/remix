@@ -1,8 +1,7 @@
 {
   "deno.enablePaths": [
     "./packages/multipart-parser/examples/deno", 
-    "./demos/frames-deno", 
-    "./demos/unpkg-deno"
+    "./demos/frames-deno"
   ],
   "nodejs-testing.extensions": [
     {
