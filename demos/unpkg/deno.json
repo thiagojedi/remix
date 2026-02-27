@@ -28,5 +28,6 @@
     "moduleResolution": "Bundler",
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
-  }
+  },
+  "nodeModulesDir": "manual"
 }

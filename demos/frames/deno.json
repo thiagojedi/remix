@@ -25,15 +25,12 @@
     "public": {
       "read": ["public/"]
     },
-    "public-with-net": {
-      "read": ["public/"],
-      "net": true
-    },
     "dev-env": {
       "env": ["NODE_ENV"],
       "read": ["public/"],
       "net": true
     }
   },
-  "unstable": ["sloppy-imports"]
+  "unstable": ["sloppy-imports"],
+  "nodeModulesDir": "manual"
 }
