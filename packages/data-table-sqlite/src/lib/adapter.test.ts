@@ -24,9 +24,245 @@ let projects = createTable({
   },
 })
 
+let accountProjects = createTable({
+  name: 'account_projects',
+  columns: {
+    account_id: number(),
+    project_id: number(),
+    email: string(),
+  },
+  primaryKey: ['account_id', 'project_id'],
+})
+
 let sqliteAvailable = canOpenSqliteDatabase()
 
 describe('sqlite adapter', { skip: !sqliteAvailable }, () => {
+  it('short-circuits insertMany([]) and returns empty rows for returning queries', async () => {
+    let prepareCalls = 0
+    let sqlite = {
+      prepare() {
+        prepareCalls += 1
+        return {
+          reader: false,
+          run() {
+            return { changes: 0, lastInsertRowid: 0 }
+          },
+          all() {
+            return []
+          },
+        }
+      },
+      exec() {},
+      pragma() {},
+    }
+
+    let adapter = createSqliteDatabaseAdapter(sqlite as never)
+    let result = await adapter.execute({
+      statement: {
+        kind: 'insertMany',
+        table: accounts,
+        values: [],
+        returning: ['id'],
+      },
+      transaction: undefined,
+    })
+
+    assert.deepEqual(result, {
+      affectedRows: 0,
+      insertId: undefined,
+      rows: [],
+    })
+    assert.equal(prepareCalls, 0)
+  })
+
+  it('enables read uncommitted pragma for read-uncommitted transactions', async () => {
+    let pragmas: string[] = []
+    let execs: string[] = []
+
+    let sqlite = {
+      prepare() {
+        throw new Error('not used')
+      },
+      pragma(statement: string) {
+        pragmas.push(statement)
+      },
+      exec(statement: string) {
+        execs.push(statement)
+      },
+    }
+
+    let adapter = createSqliteDatabaseAdapter(sqlite as never)
+    let token = await adapter.beginTransaction({ isolationLevel: 'read uncommitted' })
+    await adapter.commitTransaction(token)
+
+    assert.deepEqual(pragmas, ['read_uncommitted = true'])
+    assert.deepEqual(execs, ['begin', 'commit'])
+  })
+
+  it('supports rollback and savepoint lifecycle with escaped names', async () => {
+    let execs: string[] = []
+
+    let sqlite = {
+      prepare() {
+        throw new Error('not used')
+      },
+      pragma() {},
+      exec(statement: string) {
+        execs.push(statement)
+      },
+    }
+
+    let adapter = createSqliteDatabaseAdapter(sqlite as never)
+    let token = await adapter.beginTransaction()
+
+    await adapter.createSavepoint(token, 'sp"name')
+    await adapter.rollbackToSavepoint(token, 'sp"name')
+    await adapter.releaseSavepoint(token, 'sp"name')
+    await adapter.rollbackTransaction(token)
+
+    assert.deepEqual(execs, [
+      'begin',
+      'savepoint "sp""name"',
+      'rollback to savepoint "sp""name"',
+      'release savepoint "sp""name"',
+      'rollback',
+    ])
+  })
+
+  it('throws for unknown transaction tokens', async () => {
+    let sqlite = {
+      prepare() {
+        throw new Error('not used')
+      },
+      pragma() {},
+      exec() {},
+    }
+
+    let adapter = createSqliteDatabaseAdapter(sqlite as never)
+
+    await assert.rejects(
+      () => adapter.commitTransaction({ id: 'tx_missing' }),
+      /Unknown transaction token: tx_missing/,
+    )
+    await assert.rejects(
+      () => adapter.rollbackTransaction({ id: 'tx_missing' }),
+      /Unknown transaction token: tx_missing/,
+    )
+    await assert.rejects(
+      () => adapter.createSavepoint({ id: 'tx_missing' }, 'sp'),
+      /Unknown transaction token: tx_missing/,
+    )
+  })
+
+  it('normalizes non-object rows and count values in reader mode', async () => {
+    let sqlite = {
+      prepare() {
+        return {
+          reader: true,
+          all() {
+            return [1, null, { count: '2' }, { count: 'oops' }, { count: 5n }]
+          },
+          run() {
+            throw new Error('not used')
+          },
+        }
+      },
+      exec() {},
+      pragma() {},
+    }
+
+    let adapter = createSqliteDatabaseAdapter(sqlite as never)
+    let result = await adapter.execute({
+      statement: {
+        kind: 'count',
+        table: accounts,
+        joins: [],
+        where: [],
+        groupBy: [],
+        having: [],
+      },
+      transaction: undefined,
+    })
+
+    assert.deepEqual(result.rows, [{}, {}, { count: 2 }, { count: 'oops' }, { count: 5 }])
+    assert.equal(result.affectedRows, undefined)
+    assert.equal(result.insertId, undefined)
+  })
+
+  it('returns undefined metadata for run-mode select statements', async () => {
+    let sqlite = {
+      prepare() {
+        return {
+          reader: false,
+          all() {
+            return []
+          },
+          run() {
+            return { changes: 3, lastInsertRowid: 7 }
+          },
+        }
+      },
+      exec() {},
+      pragma() {},
+    }
+
+    let adapter = createSqliteDatabaseAdapter(sqlite as never)
+    let result = await adapter.execute({
+      statement: {
+        kind: 'select',
+        table: accounts,
+        select: '*',
+        joins: [],
+        where: [],
+        groupBy: [],
+        having: [],
+        orderBy: [],
+        limit: undefined,
+        offset: undefined,
+        distinct: false,
+      },
+      transaction: undefined,
+    })
+
+    assert.equal(result.affectedRows, undefined)
+    assert.equal(result.insertId, undefined)
+  })
+
+  it('does not expose insertId for composite primary keys in run mode', async () => {
+    let sqlite = {
+      prepare() {
+        return {
+          reader: false,
+          all() {
+            return []
+          },
+          run() {
+            return { changes: 1, lastInsertRowid: 42 }
+          },
+        }
+      },
+      exec() {},
+      pragma() {},
+    }
+
+    let adapter = createSqliteDatabaseAdapter(sqlite as never)
+    let result = await adapter.execute({
+      statement: {
+        kind: 'insert',
+        table: accountProjects,
+        values: {
+          account_id: 1,
+          project_id: 2,
+          email: 'team@example.com',
+        },
+      },
+      transaction: undefined,
+    })
+
+    assert.equal(result.affectedRows, 1)
+    assert.equal(result.insertId, undefined)
+  })
+
   it('supports typed writes, reads, and nested transactions', async () => {
     let sqlite = new Database(':memory:')
     sqlite.exec(
@@ -139,6 +375,23 @@ describe('sqlite adapter', { skip: !sqliteAvailable }, () => {
       .count()
 
     assert.equal(count, 1)
+    sqlite.close()
+  })
+
+  it('treats dotted select aliases as single identifiers', async () => {
+    let sqlite = new Database(':memory:')
+    sqlite.exec(
+      'create table accounts (id integer primary key, email text not null, status text not null)',
+    )
+
+    let db = createDatabase(createSqliteDatabaseAdapter(sqlite))
+
+    await db.query(accounts).insert({ id: 1, email: 'a@example.com', status: 'active' })
+
+    let rows = await db.query(accounts).select({ 'account.email': accounts.email }).all()
+
+    assert.equal(rows.length, 1)
+    assert.equal(rows[0]['account.email'], 'a@example.com')
     sqlite.close()
   })
 })

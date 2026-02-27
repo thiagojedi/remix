@@ -8,10 +8,14 @@ import {
   eq,
   getPredicateColumns,
   gt,
+  gte,
+  ilike,
   inList,
   isNull,
   isPredicate,
   like,
+  lt,
+  lte,
   ne,
   normalizeWhereInput,
   notInList,
@@ -32,6 +36,15 @@ let projects = createTable({
   columns: {
     id: number(),
     account_id: number(),
+  },
+})
+
+let invoices = createTable({
+  name: 'billing.invoices',
+  columns: {
+    id: number(),
+    account_id: number(),
+    total: number(),
   },
 })
 
@@ -56,6 +69,18 @@ describe('comparison predicates', () => {
       operator: 'eq',
       column: 'accounts.id',
       value: 'projects.account_id',
+      valueType: 'column',
+    })
+  })
+
+  it('supports cross schema column reference inputs', () => {
+    let predicate = eq(accounts.id, invoices.account_id)
+
+    assert.deepEqual(predicate, {
+      type: 'comparison',
+      operator: 'eq',
+      column: 'accounts.id',
+      value: 'billing.invoices.account_id',
       valueType: 'column',
     })
   })
@@ -89,9 +114,41 @@ describe('comparison predicates', () => {
       valueType: 'value',
     })
 
+    assert.deepEqual(gte('score', 10), {
+      type: 'comparison',
+      operator: 'gte',
+      column: 'score',
+      value: 10,
+      valueType: 'value',
+    })
+
+    assert.deepEqual(lt('score', 10), {
+      type: 'comparison',
+      operator: 'lt',
+      column: 'score',
+      value: 10,
+      valueType: 'value',
+    })
+
+    assert.deepEqual(lte('score', 10), {
+      type: 'comparison',
+      operator: 'lte',
+      column: 'score',
+      value: 10,
+      valueType: 'value',
+    })
+
     assert.deepEqual(like('email', '%@example.com'), {
       type: 'comparison',
       operator: 'like',
+      column: 'email',
+      value: '%@example.com',
+      valueType: 'value',
+    })
+
+    assert.deepEqual(ilike('email', '%@example.com'), {
+      type: 'comparison',
+      operator: 'ilike',
       column: 'email',
       value: '%@example.com',
       valueType: 'value',
@@ -163,6 +220,24 @@ describe('logical predicates', () => {
     assert.equal(normalized, input)
   })
 
+  it('filters falsy values when combining logical predicates', () => {
+    let predicate = and(eq('id', 10), null as never, undefined as never)
+
+    assert.deepEqual(predicate, {
+      type: 'logical',
+      operator: 'and',
+      predicates: [eq('id', 10)],
+    })
+
+    let disjunction = or(eq('status', 'active'), false as never)
+
+    assert.deepEqual(disjunction, {
+      type: 'logical',
+      operator: 'or',
+      predicates: [eq('status', 'active')],
+    })
+  })
+
   it('collects columns across nested predicates', () => {
     let predicate = and(
       eq('accounts.id', 'projects.account_id'),
@@ -181,10 +256,15 @@ describe('logical predicates', () => {
     ])
   })
 
+  it('collects columns for scalar comparison predicates', () => {
+    assert.deepEqual(getPredicateColumns(eq('accounts.id', 1)), ['accounts.id'])
+  })
+
   it('identifies predicate-like inputs', () => {
     assert.equal(isPredicate(eq('id', 1)), true)
     assert.equal(isPredicate({ type: 'logical', operator: 'and', predicates: [] }), true)
     assert.equal(isPredicate({}), false)
     assert.equal(isPredicate(null), false)
+    assert.equal(isPredicate({ type: 'unknown' }), false)
   })
 })

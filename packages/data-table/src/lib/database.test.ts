@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict'
 import { afterEach, describe, it } from 'node:test'
 import { boolean, number, string } from '@remix-run/data-schema'
 
-import type { DatabaseAdapter } from './adapter.ts'
+import type { AdapterStatement, DatabaseAdapter } from './adapter.ts'
 import { createDatabase } from './database.ts'
 import { DataTableAdapterError, DataTableQueryError, DataTableValidationError } from './errors.ts'
 import { belongsTo, createTable, hasMany, hasManyThrough, hasOne, timestamps } from './table.ts'
@@ -58,6 +58,15 @@ let memberships = createTable({
     organization_id: number(),
     account_id: number(),
     role: string(),
+  },
+})
+
+let invoices = createTable({
+  name: 'billing.invoices',
+  columns: {
+    id: number(),
+    account_id: number(),
+    total: number(),
   },
 })
 
@@ -385,12 +394,129 @@ describe('query builder', () => {
       },
       { with: { projects: openProjects } },
     )
-    let missing = await db.update(accounts, 999, { status: 'active' })
 
-    assert.equal(updated?.status, 'inactive')
-    assert.equal(updated?.projects.length, 1)
-    assert.equal(updated?.projects[0].id, 100)
-    assert.equal(missing, null)
+    assert.equal(updated.status, 'inactive')
+    assert.equal(updated.projects.length, 1)
+    assert.equal(updated.projects[0].id, 100)
+  })
+
+  it('throws from database-level update helper when row is missing', async () => {
+    let adapter = createAdapter({
+      accounts: [{ id: 1, email: 'amy@studio.test', status: 'active' }],
+      projects: [],
+      tasks: [],
+      memberships: [],
+    })
+
+    let db = createTestDatabase(adapter)
+
+    await assert.rejects(
+      async function () {
+        await db.update(accounts, 999, { status: 'active' })
+      },
+      function (error: unknown) {
+        return (
+          error instanceof DataTableQueryError &&
+          error.message === 'update() failed to find row for table "accounts"'
+        )
+      },
+    )
+  })
+
+  it('does not pre-read when update helper uses RETURNING', async () => {
+    let statementKinds: string[] = []
+
+    let adapter: DatabaseAdapter = {
+      dialect: 'fake',
+      capabilities: {
+        returning: true,
+        savepoints: true,
+        upsert: true,
+      },
+      async execute(request) {
+        statementKinds.push(request.statement.kind)
+
+        if (request.statement.kind === 'update') {
+          return {
+            rows: [
+              {
+                id: 1,
+                email: 'amy@studio.test',
+                status: 'inactive',
+              },
+            ],
+            affectedRows: 1,
+          }
+        }
+
+        throw new Error('unexpected statement kind: ' + request.statement.kind)
+      },
+      async beginTransaction() {
+        return { id: 'tx_1' }
+      },
+      async commitTransaction() {},
+      async rollbackTransaction() {},
+      async createSavepoint() {},
+      async rollbackToSavepoint() {},
+      async releaseSavepoint() {},
+    }
+
+    let db = createTestDatabase(adapter)
+    let updated = await db.update(accounts, 1, { status: 'inactive' })
+
+    assert.equal(updated.id, 1)
+    assert.deepEqual(statementKinds, ['update'])
+  })
+
+  it('does not throw on no-op updates for non-RETURNING adapters when row still exists', async () => {
+    let statementKinds: string[] = []
+
+    let adapter: DatabaseAdapter = {
+      dialect: 'fake',
+      capabilities: {
+        returning: false,
+        savepoints: true,
+        upsert: true,
+      },
+      async execute(request) {
+        statementKinds.push(request.statement.kind)
+
+        if (request.statement.kind === 'update') {
+          return {
+            affectedRows: 0,
+          }
+        }
+
+        if (request.statement.kind === 'select') {
+          return {
+            rows: [
+              {
+                id: 1,
+                email: 'amy@studio.test',
+                status: 'active',
+              },
+            ],
+          }
+        }
+
+        throw new Error('unexpected statement kind: ' + request.statement.kind)
+      },
+      async beginTransaction() {
+        return { id: 'tx_1' }
+      },
+      async commitTransaction() {},
+      async rollbackTransaction() {},
+      async createSavepoint() {},
+      async rollbackToSavepoint() {},
+      async releaseSavepoint() {},
+    }
+
+    let db = createTestDatabase(adapter)
+    let updated = await db.update(accounts, 1, { status: 'active' })
+
+    assert.equal(updated.id, 1)
+    assert.equal(updated.status, 'active')
+    assert.deepEqual(statementKinds, ['update', 'select'])
   })
 
   it('supports database-level updateMany helper', async () => {
@@ -551,6 +677,91 @@ describe('query builder', () => {
     assert.equal(rows[0].email, 'c@studio.test')
   })
 
+  it('throws for createMany() batches with only empty rows', async () => {
+    let adapter = createAdapter({
+      accounts: [],
+      projects: [],
+      tasks: [],
+      memberships: [],
+    })
+
+    let db = createTestDatabase(adapter)
+
+    await assert.rejects(
+      async function () {
+        await db.createMany(tasks, [{}, {}])
+      },
+      function (error: unknown) {
+        return (
+          error instanceof DataTableQueryError &&
+          error.message === 'insertMany() requires at least one explicit value across the batch'
+        )
+      },
+    )
+  })
+
+  it('throws for insertMany() batches with only empty rows', async () => {
+    let adapter = createAdapter({
+      accounts: [],
+      projects: [],
+      tasks: [],
+      memberships: [],
+    })
+
+    let db = createTestDatabase(adapter)
+
+    await assert.rejects(
+      async function () {
+        await db.query(tasks).insertMany([{}])
+      },
+      function (error: unknown) {
+        return (
+          error instanceof DataTableQueryError &&
+          error.message === 'insertMany() requires at least one explicit value across the batch'
+        )
+      },
+    )
+  })
+
+  it('supports insertMany() batches that include at least one explicit value', async () => {
+    let statements: AdapterStatement[] = []
+
+    let adapter: DatabaseAdapter = {
+      dialect: 'fake',
+      capabilities: {
+        returning: true,
+        savepoints: true,
+        upsert: true,
+      },
+      async execute(request) {
+        statements.push(request.statement)
+
+        if (request.statement.kind === 'insertMany') {
+          return {
+            affectedRows: request.statement.values.length,
+          }
+        }
+
+        return {}
+      },
+      async beginTransaction() {
+        return { id: 'tx_1' }
+      },
+      async commitTransaction() {},
+      async rollbackTransaction() {},
+      async createSavepoint() {},
+      async rollbackToSavepoint() {},
+      async releaseSavepoint() {},
+    }
+
+    let db = createTestDatabase(adapter)
+    let result = await db.query(tasks).insertMany([{}, { title: 'hello world' }])
+
+    assert.equal(result.affectedRows, 2)
+    assert.equal(statements.length, 1)
+    assert.equal(statements[0].kind, 'insertMany')
+  })
+
   it('throws for createMany({ returnRows: true }) when adapter has no RETURNING support', async () => {
     let adapter = createAdapter(
       {
@@ -678,6 +889,26 @@ describe('query builder', () => {
     assert.equal(accountRows[0].profile?.display_name, 'Amy')
     assert.equal(projectRows.length, 1)
     assert.equal(projectRows[0].account?.email, 'amy@studio.test')
+  })
+
+  it('supports cross schema query', async () => {
+    let adapter = createAdapter({
+      accounts: [{ id: 1, email: 'amy@studio.test', status: 'active' }],
+      invoices: [{ id: 100, account_id: 1, total: 1000 }],
+    })
+    let db = createTestDatabase(adapter)
+    let invoiceRows = await db
+      .query(invoices)
+      .join(accounts, eq(accounts.id, invoices.account_id))
+      .select({
+        email: accounts.email,
+        total: invoices.total,
+      })
+      .all()
+
+    assert.equal(invoiceRows.length, 1)
+    assert.equal(invoiceRows[0].email, 'amy@studio.test')
+    assert.equal(invoiceRows[0].total, 1000)
   })
 })
 
