@@ -1,4 +1,4 @@
-import type * as dom from './dom.d.ts'
+import type * as dom from './dom.ts'
 import type { Component, Handle, RenderFn } from './component.ts'
 
 /**
