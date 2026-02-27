@@ -15,8 +15,8 @@ if (process.env.NODE_ENV === 'test' && fs.existsSync(databaseFilePath)) {
 }
 
 let sqlite = new BetterSqlite3(databaseFilePath)
-sqlite.pragma('foreign_keys = ON')
-let adapter = createSqliteDatabaseAdapter(sqlite)
+sqlite.exec('pragma foreign_keys = ON')
+let adapter = createSqliteDatabaseAdapter(sqlite as any)
 
 export let db = createDatabase(adapter)
 

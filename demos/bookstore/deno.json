@@ -1,0 +1,21 @@
+{
+  "tasks": {
+    "dev": {
+      "dependencies": ["dev:server", "dev:browser"]
+    },
+    "dev:browser": "deno bundle app/assets/*.tsx --outdir=public/assets --minify --code-splitting --sourcemap --watch",
+    "dev:server": "NODE_ENV=development deno serve -P --port 44100 --watch deno.entry.ts",
+    "start": "deno serve -P --port 44100 deno.entry.ts"
+  },
+  "permissions": {
+    "default": {
+      "env": ["NODE_ENV"],
+      "write": ["tmp"],
+      "read": ["tmp"]
+    }
+  },
+  "imports": {
+    "better-sqlite3": "./db-patch.ts"
+  },
+  "nodeModulesDir": "manual"
+}
