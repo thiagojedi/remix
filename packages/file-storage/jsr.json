@@ -1,6 +1,6 @@
 {
   "name": "@remix/file-storage",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "exports": {
     ".": "./src/index.ts",
     "./fs": "./src/fs.ts",

@@ -26,6 +26,9 @@ importers:
 
   .:
     dependencies:
+      '@prefer-jsr/sync-jsr-json':
+        specifier: jsr:^0.1.3
+        version: '@jsr/prefer-jsr__sync-jsr-json@0.1.3'
       '@typescript/native-preview':
         specifier: 'catalog:'
         version: 7.0.0-dev.20251125.1
@@ -2106,6 +2109,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@jsr/prefer-jsr__sync-jsr-json@0.1.3':
+    resolution: {integrity: sha512-1jqUscU0yeOvyHEecgh1tPi3aApzTH+g7YRkcCR0qO/QCJI+3VQ5MvkRySCIOyAZ2KJIMJ/YvcK1cO6betiZtQ==, tarball: https://npm.jsr.io/~/11/@jsr/prefer-jsr__sync-jsr-json/0.1.3.tgz}
 
   '@octokit/endpoint@10.1.1':
     resolution: {integrity: sha512-JYjh5rMOwXMJyUpj028cu0Gbp7qe/ihxfJMLc8VZBMMqSwLgOxDI1911gV4Enl1QSavAQNJcwmwBF9M0VvLh6Q==}
@@ -5797,6 +5803,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@jsr/prefer-jsr__sync-jsr-json@0.1.3': {}
 
   '@octokit/endpoint@10.1.1':
     dependencies:

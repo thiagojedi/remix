@@ -4,6 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.26.0",
   "dependencies": {
+    "@prefer-jsr/sync-jsr-json": "jsr:^0.1.3",
     "@typescript/native-preview": "catalog:",
     "eslint": "^9.33.0",
     "eslint-plugin-import": "^2.32.0",
@@ -30,6 +31,7 @@
     "format:check": "prettier --check .",
     "generate-remix": "node scripts/generate-remix.ts",
     "generate-jsr": "node scripts/generate-jsr.ts",
+    "check-jsr": "node scripts/check-jsr.ts",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "pr-preview": "node scripts/pr-preview.ts",

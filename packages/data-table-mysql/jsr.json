@@ -1,11 +1,8 @@
 {
-  "name": "@remix/response",
-  "version": "0.3.2",
+  "name": "@remix/data-table-mysql",
+  "version": "0.1.0",
   "exports": {
-    "./compress": "./src/compress.ts",
-    "./file": "./src/file.ts",
-    "./html": "./src/html.ts",
-    "./redirect": "./src/redirect.ts",
+    ".": "./src/index.ts",
     "./package.json": "./package.json"
   },
   "publish": {

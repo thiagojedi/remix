@@ -1,11 +1,11 @@
 {
-  "name": "@remix/response",
-  "version": "0.3.2",
+  "name": "@remix/data-schema",
+  "version": "0.1.0",
   "exports": {
-    "./compress": "./src/compress.ts",
-    "./file": "./src/file.ts",
-    "./html": "./src/html.ts",
-    "./redirect": "./src/redirect.ts",
+    ".": "./src/index.ts",
+    "./checks": "./src/checks.ts",
+    "./coerce": "./src/coerce.ts",
+    "./lazy": "./src/lazy.ts",
     "./package.json": "./package.json"
   },
   "publish": {

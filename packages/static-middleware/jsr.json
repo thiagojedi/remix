@@ -1,6 +1,6 @@
 {
   "name": "@remix/static-middleware",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json"
