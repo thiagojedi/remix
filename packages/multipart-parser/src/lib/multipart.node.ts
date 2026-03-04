@@ -1,5 +1,6 @@
 import type * as http from 'node:http'
 import { Readable } from 'node:stream'
+import { type Buffer } from 'node:buffer'
 
 import type { ParseMultipartOptions, MultipartParserOptions, MultipartPart } from './multipart.ts'
 import {

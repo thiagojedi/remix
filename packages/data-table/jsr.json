@@ -1,11 +1,10 @@
 {
-  "name": "@remix-run/component",
-  "version": "0.4.0",
+  "name": "@remix-run/data-table",
+  "version": "0.0.0",
   "exports": {
     ".": "./src/index.ts",
-    "./server": "./src/server.ts",
-    "./jsx-runtime": "./src/jsx-runtime.ts",
-    "./jsx-dev-runtime": "./src/jsx-dev-runtime.ts",
+    "./operators": "./src/operators.ts",
+    "./sql": "./src/sql.ts",
     "./package.json": "./package.json"
   },
   "publish": {

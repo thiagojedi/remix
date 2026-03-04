@@ -1,11 +1,8 @@
 {
-  "name": "@remix-run/component",
-  "version": "0.4.0",
+  "name": "@remix-run/headers",
+  "version": "0.19.0",
   "exports": {
     ".": "./src/index.ts",
-    "./server": "./src/server.ts",
-    "./jsx-runtime": "./src/jsx-runtime.ts",
-    "./jsx-dev-runtime": "./src/jsx-dev-runtime.ts",
     "./package.json": "./package.json"
   },
   "publish": {

@@ -1,4 +1,6 @@
 {
   "workspace": ["packages/*"],
-  "unstable": ["tsgo"]
+  "unstable": ["tsgo"],
+  "nodeModulesDir": "auto",
+  "lock": false
 }
