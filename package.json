@@ -30,6 +30,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "generate-remix": "node scripts/generate-remix.ts",
+    "generate-jsr": "node scripts/generate-jsr.ts",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "pr-preview": "node scripts/pr-preview.ts",
