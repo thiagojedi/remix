@@ -18,21 +18,20 @@ for await (const entry of dir) {
 
   if (gt(version, '0.0.0') === false) continue
 
-  console.log("Creating jsr.json file for %s", name)
+  console.log('Creating jsr.json file for %s', name)
 
   const normalizedName =
     name === 'remix' ? '@remix/remix' : (name as string).replace('@remix-run', '@remix')
 
-  const jsrJsonContent = (
-    {
-      name: normalizedName,
-      version,
-      exports,
-      publish: {
-        include: ['src/', 'README.md', 'LICENSE', 'package.json'],
-        exclude: ['src/test/', 'src/**/*.test.ts'],
-      },
-    })
+  const jsrJsonContent = {
+    name: normalizedName,
+    version,
+    exports,
+    publish: {
+      include: ['src/', 'README.md', 'LICENSE', 'package.json'],
+      exclude: ['src/test/', 'src/**/*.test.ts'],
+    },
+  }
 
   writeJson(jsrJsonPath, jsrJsonContent)
 }
