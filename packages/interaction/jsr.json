@@ -16,7 +16,8 @@
       "package.json"
     ],
     "exclude": [
-      "src/test/"
+      "src/test/",
+      "src/**/*.test.ts"
     ]
   }
 }

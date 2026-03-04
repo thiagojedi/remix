@@ -36,7 +36,7 @@ for await (const entry of dir) {
       exports,
       publish: {
         include: ["src/", "README.md", "LICENSE", "package.json"],
-        exclude: ["src/test/"],
+        exclude: ["src/test/", 'src/**/*.test.ts'],
       },
     },
     undefined,
