@@ -1,0 +1,19 @@
+{
+  "name": "@remix/lazy-file",
+  "version": "5.0.1",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "publish": {
+    "include": [
+      "src/",
+      "README.md",
+      "LICENSE",
+      "package.json"
+    ],
+    "exclude": [
+      "src/test/"
+    ]
+  }
+}

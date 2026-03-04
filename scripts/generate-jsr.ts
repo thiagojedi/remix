@@ -27,9 +27,11 @@ for await (const entry of dir) {
   if (gt(version, "0.0.0") === false) 
     continue;
 
+  const normalizedName = name === "remix" ? "@remix/remix": (name as string).replace("@remix-run", "@remix")
+
   const jsrJsonContent = JSON.stringify(
     {
-      name: (name as string).replace("@remix-run", "@remix"),
+      name: normalizedName,
       version,
       exports,
       publish: {

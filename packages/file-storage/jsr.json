@@ -1,0 +1,21 @@
+{
+  "name": "@remix/file-storage",
+  "version": "0.13.2",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fs": "./src/fs.ts",
+    "./memory": "./src/memory.ts",
+    "./package.json": "./package.json"
+  },
+  "publish": {
+    "include": [
+      "src/",
+      "README.md",
+      "LICENSE",
+      "package.json"
+    ],
+    "exclude": [
+      "src/test/"
+    ]
+  }
+}

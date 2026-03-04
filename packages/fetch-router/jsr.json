@@ -1,0 +1,20 @@
+{
+  "name": "@remix/fetch-router",
+  "version": "0.16.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./routes": "./src/routes.ts",
+    "./package.json": "./package.json"
+  },
+  "publish": {
+    "include": [
+      "src/",
+      "README.md",
+      "LICENSE",
+      "package.json"
+    ],
+    "exclude": [
+      "src/test/"
+    ]
+  }
+}

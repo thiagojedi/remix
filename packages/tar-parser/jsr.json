@@ -1,0 +1,19 @@
+{
+  "name": "@remix/tar-parser",
+  "version": "0.7.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "publish": {
+    "include": [
+      "src/",
+      "README.md",
+      "LICENSE",
+      "package.json"
+    ],
+    "exclude": [
+      "src/test/"
+    ]
+  }
+}
